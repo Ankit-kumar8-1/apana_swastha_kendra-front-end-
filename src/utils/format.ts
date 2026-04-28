@@ -1,5 +1,3 @@
-// src/utils/format.ts
-
 /**
  * Safely parse date
  */
