@@ -93,7 +93,7 @@ export function RoleBadge({ role }: { role: UserRole | string }) {
     role
       ?.toString()
       .split("_")
-      .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+      .map((w: string) => w.charAt(0) + w.slice(1).toLowerCase())
       .join(" ");
 
   return (
