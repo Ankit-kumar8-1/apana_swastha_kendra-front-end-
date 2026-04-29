@@ -1,7 +1,9 @@
+// src/app/profile/page.tsx
 "use client";
 
 import { useState } from "react";
 import { KeyRound, Shield, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +14,18 @@ import { PermissionGroup } from "@/components/ui/PermissionCheckbox";
 import { useUser, useAuthStore } from "@/store/authStore";
 import { formatDateTime, formatRoleName, formatPhone } from "@/utils/format";
 import { ALL_PERMISSIONS, ROLE_COLORS } from "@/utils/constants";
-import { useRouter } from "next/navigation";
+
+function getInitials(fullName: string | null | undefined): string {
+  const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
+
+  const initials = parts
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase();
+
+  return initials || "?";
+}
 
 export default function ProfilePage() {
   const user = useUser();
@@ -29,19 +42,9 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  // ✅ FIXED TYPES
-  const userPermSet: Set<string> = new Set(user?.permissions ?? []);
-
+  const userPermSet: Set<string> = new Set(user?.effectivePermissions ?? []);
   const roleColor = user ? (ROLE_COLORS[user.role] ?? "#22c55e") : "#22c55e";
-
-  // ✅ NO RED LINE HERE
-  const initials =
-    (user?.fullName ?? "")
-      .split(" ")
-      .map((n: string) => n.charAt(0))
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?";
+  const initials = getInitials(user?.fullName);
 
   const handleChangePassword = async () => {
     setError("");
@@ -87,11 +90,9 @@ export default function ProfilePage() {
   return (
     <AppShell>
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Profile Header */}
         <div className="rounded-xl border border-[#1f2d3d] bg-[#111827] p-6 flex items-center gap-5">
           <div
-            className="w-16 h-16 rounded-xl flex items-center justify-center
-              text-xl font-bold text-white shrink-0"
+            className="w-16 h-16 rounded-xl flex items-center justify-center text-xl font-bold text-white shrink-0"
             style={{ backgroundColor: roleColor }}
           >
             {initials}
@@ -101,7 +102,7 @@ export default function ProfilePage() {
             <h2 className="text-xl font-bold text-gray-100">
               {user?.fullName ?? "—"}
             </h2>
-            <p className="text-sm text-gray-500 mt-0.5">{user?.email}</p>
+            <p className="text-sm text-gray-500 mt-0.5">{user?.email ?? "—"}</p>
 
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {user && <RoleBadge role={user.role} />}
@@ -131,14 +132,13 @@ export default function ProfilePage() {
             <div>
               <p className="text-[10px] text-gray-600 uppercase">Permissions</p>
               <p className="text-xs text-green-400 font-bold">
-                {user?.permissions.length ?? 0}
+                {user?.effectivePermissions?.length ?? 0}
               </p>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Change Password */}
           <Card
             title="Change Password"
             subtitle="You will be logged out after changing"
@@ -218,10 +218,9 @@ export default function ProfilePage() {
             </div>
           </Card>
 
-          {/* Permissions */}
           <Card
             title="My Permissions"
-            subtitle={`${user?.permissions.length ?? 0} permissions assigned`}
+            subtitle={`${user?.effectivePermissions?.length ?? 0} permissions assigned`}
           >
             <div className="flex items-center gap-1.5 mb-4">
               <Shield size={13} className="text-gray-600" />
@@ -250,7 +249,7 @@ export default function ProfilePage() {
                 );
               })}
 
-              {(!user || user.permissions.length === 0) && (
+              {(!user || user.effectivePermissions.length === 0) && (
                 <p className="text-sm text-gray-600 py-6 text-center">
                   No permissions assigned
                 </p>
