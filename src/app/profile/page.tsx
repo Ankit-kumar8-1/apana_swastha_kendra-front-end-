@@ -29,69 +29,69 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  // ✅ FIXED TYPE
+  // ✅ FIXED TYPES
   const userPermSet: Set<string> = new Set(user?.permissions ?? []);
 
   const roleColor = user ? (ROLE_COLORS[user.role] ?? "#22c55e") : "#22c55e";
+
+  // ✅ NO RED LINE HERE
   const initials =
-    user?.fullName
-      ?.split(" ")
-      .map((n: string) => n[0])
+    (user?.fullName ?? "")
+      .split(" ")
+      .map((n: string) => n.charAt(0))
       .slice(0, 2)
       .join("")
-      .toUpperCase() ?? "?";
+      .toUpperCase() || "?";
 
   const handleChangePassword = async () => {
     setError("");
     setSuccess(false);
 
-    ```
-if (!oldPassword || !newPassword || !confirmPass) {
-  setError('All fields are required.');
-  return;
-}
-if (newPassword !== confirmPass) {
-  setError('New passwords do not match.');
-  return;
-}
-if (newPassword.length < 8) {
-  setError('New password must be at least 8 characters.');
-  return;
-}
+    if (!oldPassword || !newPassword || !confirmPass) {
+      setError("All fields are required.");
+      return;
+    }
 
-setLoading(true);
-try {
-  await changePassword({
-    oldPassword,
-    newPassword,
-    confirmPassword: confirmPass
-  });
+    if (newPassword !== confirmPass) {
+      setError("New passwords do not match.");
+      return;
+    }
 
-  setSuccess(true);
-  setOldPassword('');
-  setNewPassword('');
-  setConfirmPass('');
+    if (newPassword.length < 8) {
+      setError("New password must be at least 8 characters.");
+      return;
+    }
 
-  setTimeout(() => router.push('/login'), 2000);
-} catch (e: unknown) {
-  const msg = e instanceof Error ? e.message : 'Failed to change password.';
-  setError(msg);
-} finally {
-  setLoading(false);
-}
-```;
+    setLoading(true);
+    try {
+      await changePassword({
+        oldPassword,
+        newPassword,
+        confirmPassword: confirmPass,
+      });
+
+      setSuccess(true);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPass("");
+
+      setTimeout(() => router.push("/login"), 2000);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to change password.";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AppShell>
-      {" "}
       <div className="max-w-4xl mx-auto space-y-6">
-        ```
         {/* Profile Header */}
         <div className="rounded-xl border border-[#1f2d3d] bg-[#111827] p-6 flex items-center gap-5">
           <div
             className="w-16 h-16 rounded-xl flex items-center justify-center
-          text-xl font-bold text-white shrink-0"
+              text-xl font-bold text-white shrink-0"
             style={{ backgroundColor: roleColor }}
           >
             {initials}
@@ -136,6 +136,7 @@ try {
             </div>
           </div>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Change Password */}
           <Card
@@ -217,7 +218,7 @@ try {
             </div>
           </Card>
 
-          {/* My Permissions */}
+          {/* Permissions */}
           <Card
             title="My Permissions"
             subtitle={`${user?.permissions.length ?? 0} permissions assigned`}
